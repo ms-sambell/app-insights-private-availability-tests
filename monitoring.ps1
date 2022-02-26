@@ -94,7 +94,7 @@ function appInsightsAvailabilityTest {
 
 ## Synopsis: The Script Starts Here
 ## `HttpTrigger1` is the name of my function
-$testsFile = Get-Content "HttpTrigger1/monitoring.json" | ConvertFrom-Json
+$testsFile = Get-Content "TimeTrigger1/monitoring.json" | ConvertFrom-Json
 
 ## Read the tests file and loop through each testType array
 foreach($testTypesList in $testsFile.tests) {
