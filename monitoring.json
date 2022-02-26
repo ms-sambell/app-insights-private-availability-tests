@@ -1,0 +1,29 @@
+{
+   "tests": [
+       {
+           "testType": "http",
+           "tests": [
+            {
+                "name": "test-1",
+                "address": "https://google.com"
+            },
+            {
+                "name": "test-2",
+                "address": "https://google.com"
+            },
+            {
+                "name": "test-3",
+                "address": "https://google.com123"
+            }
+        ]
+       },
+       {
+           "testType": "ldap",
+           "tests": []
+       },
+       {
+           "testType": "dns",
+           "tests": []
+       }
+   ]
+}
