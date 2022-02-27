@@ -9,7 +9,7 @@ $TelemetryConfiguration = [Microsoft.ApplicationInsights.Extensibility.Telemetry
 $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new($TelemetryConfiguration);
 
 ## Defining Reusable code as function
-function appInsightsAvailabilityTest {
+function Invoke-AppInsightsAvailabilityTest {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $True)]
@@ -33,6 +33,7 @@ function appInsightsAvailabilityTest {
 
     ## Define the Availability Test config
     $OperationId = (New-Guid).ToString("N");
+    $Timeout = 30
     $OriginalErrorActionPreference = $ErrorActionPreference;
 
     ## Create the Payload to send to App Insights
@@ -52,10 +53,10 @@ function appInsightsAvailabilityTest {
         if($TestType -eq "http"){
             ## If the test requires a proxy add the proxy address to the WebRequest
             if($ProxyAddress){
-                $Response = Invoke-WebRequest -Uri $Address -Proxy $ProxyAddress;
+                $Response = Invoke-WebRequest -Uri $Address -Proxy $ProxyAddress -TimeoutSec $Timeout;
                 $Success = $Response.StatusCode -eq $ResponseCode;
             } else {
-                $Response = Invoke-WebRequest -Uri $Address;
+                $Response = Invoke-WebRequest -Uri $Address -TimeoutSec $Timeout;
                 $Success = $Response.StatusCode -eq $ResponseCode;
             }
         } elseif ($TestType -eq "ldap") {
@@ -65,14 +66,14 @@ function appInsightsAvailabilityTest {
             $Success = $True
         } elseif ($TestType -eq "dns") {
             ## Tests if the DNS server resolves
-            $Response = Resolve-DnsName -Name $Address
+            $Response = Resolve-DnsName -Name $Address -DnsOnly -QuickTimeout
             $Success = $True
         }
         
         ## Based on the test results, update the success value
         $Availability.Success = $Success;
     } Catch {
-        # Submit Exception details to Application Insights
+        ## Submit Exception details to Application Insights
         $Availability.Message = $_.Exception.Message;
         $ExceptionTelemetry = [Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry]::new($_.Exception);
         $ExceptionTelemetry.Context.Operation.Id = $OperationId;
@@ -86,21 +87,20 @@ function appInsightsAvailabilityTest {
         
         # Submit Availability details to Application Insights
         $TelemetryClient.TrackAvailability($Availability);
-        # call flush to ensure telemetry is sent
+        # Flush to ensure telemetry is sent
         $TelemetryClient.Flush();
         $ErrorActionPreference = $OriginalErrorActionPreference;
     }
 }
 
 ## Synopsis: The Script Starts Here
-## `HttpTrigger1` is the name of my function
-$testsFile = Get-Content "TimeTrigger1/monitoring.json" | ConvertFrom-Json
+$testsFile = Get-Content "${PSScriptRoot}/monitoring.json" | ConvertFrom-Json
 
 ## Read the tests file and loop through each testType array
 foreach($testTypesList in $testsFile.tests) {
     foreach($tests in $testTypesList) {
         foreach($test in $tests.tests){
-            appInsightsAvailabilityTest -TestType $tests.testType `
+            Invoke-AppInsightsAvailabilityTest -TestType $tests.testType `
                 -TestName $test.name `
                 -Address $test.address `
                 -ProxyAddress $test.proxyAddress

@@ -1,3 +1,5 @@
+<img src=".images/azurelogo-1.png" width="100" height="50" />
+
 # Private Availability Tests - Azure App Insights
 
 The code within this repository will execute private availability tests and publish the logs to Azure App Insights in the `Availability` panel. This is effectively synthetic checks for internal and external addresses.
@@ -6,7 +8,17 @@ The code within this repository will execute private availability tests and publ
 
 To use this repository, provision the code into an Azure function. To test private addresses or on-premise resources, you will need to ensure the network the Azure function is provisioned to has connectivity to those resources. As well as using a Premium App Service plan. As the other SKU's don't support provisioning a function into an internal vNet.
 
-Note: A premium function app does require a dedicated subnet. So plan accordingly.
+> *Note:* A premium function app does require a dedicated subnet. So plan accordingly.
+
+## Availability Test Results
+
+The results from this test are available in the `Availability` panel for the Application Insights attached to the function app executing this script.
+
+![example-availability-test-results](.images/availabilitytest.png)
+
+The data can also be queried through the Log Analytics workspace.
+
+![log-analytics-query](.images/loganalytics-availability-query.png)
 
 ## Json Tests File
 
@@ -62,6 +74,10 @@ If you don't need a certain test type, leave the array empty.
 
 - The frequency will be controlled via the function apps timer trigger, not within the individual tests.
 - The requests execute once without a retry.
-- All the test types must be in the JSON file, even if they're unused.
+- All the test types must be present in the JSON file, even if they're unused.
 - The script doesn't run on a local device.
-- The script doesn't automatically locate the `monitoring.json` file.
+- LDAP test type needs a connection timeout
+
+## Documentation
+
+- [Availability Azure Functions](https://docs.microsoft.com/en-us/azure/azure-monitor/app/availability-azure-functions)
