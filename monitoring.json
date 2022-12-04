@@ -1,29 +1,55 @@
 {
-   "tests": [
-       {
-           "testType": "http",
-           "tests": [
-            {
-                "name": "test-1",
-                "address": "https://google.com"
-            },
-            {
-                "name": "test-2",
-                "address": "https://google.com"
-            },
-            {
-                "name": "test-3",
-                "address": "https://google.com123"
-            }
-        ]
-       },
-       {
-           "testType": "ldap",
-           "tests": []
-       },
-       {
-           "testType": "dns",
-           "tests": []
-       }
-   ]
+    "metadata": {
+        "location": "ae",
+        "environment": "test"
+    },
+    "tests": [
+        {
+            "testType": "http",
+            "tests": [
+                {
+                    "name": "http-test-pass",
+                    "address": "https://bing.com"
+                },
+                {
+                    "name": "http-test-fail-dns",
+                    "address": "https://bing123.com"
+                },
+                {
+                    "name": "http-test-fail-execution",
+                    "address": "http://localhost.com"
+                }
+            ]
+        },
+        {
+            "testType": "tcpProbe",
+            "tests": [
+                {
+                    "name": "tcp-test-fail",
+                    "address": "localhost",
+                    "port": 8080
+                },
+                {
+                    "name": "tcp-test-pass",
+                    "address": "bing.com",
+                    "port": 443
+                }
+            ]
+        },
+        {
+            "testType": "dns",
+            "tests": [
+                {
+                    "name": "dns-test-pass",
+                    "address": "8.8.8.8",
+                    "dnsRecord": "microsoft.com"
+                },
+                {
+                    "name": "dns-test-fail",
+                    "address": "8.8.8.8",
+                    "dnsRecord": "microsoft1234.com"
+                }
+            ]
+        }
+    ]
 }

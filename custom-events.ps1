@@ -9,7 +9,7 @@ $TelemetryConfiguration = [Microsoft.ApplicationInsights.Extensibility.Telemetry
 $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new($TelemetryConfiguration);
 
 $json = @"
-"event": "bootstrap",
+"event": "example",
 "test": "yes"
 "@
 

@@ -1,0 +1,843 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# Availability Test Workbook\r\n\r\nThis is an example workbook to help visualise how the private availability test results can be displayed in an Azure Workbook."
+      },
+      "name": "text - 0"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::all"
+        ],
+        "parameters": [
+          {
+            "id": "d2bd55ee-62e3-4440-bf5e-979acd33d929",
+            "version": "KqlParameterItem/1.0",
+            "name": "Timerange",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                }
+              ]
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": {
+              "durationMs": 1800000
+            }
+          },
+          {
+            "id": "29aef3eb-a3df-4744-9f0e-62259ec97d5d",
+            "version": "KqlParameterItem/1.0",
+            "name": "ApplicationInsights",
+            "label": "Application Insights",
+            "type": 5,
+            "query": "resources\r\n| where type =~ \"microsoft.insights/components\"\r\n| project id, name",
+            "crossComponentResources": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": "/subscriptions/892bcc8c-4ef7-4891-a300-6162ad690045/resourceGroups/internal-availability-test_group/providers/microsoft.insights/components/internal-availability-test"
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "availabilityResults\r\n| where timestamp < ago(10m)\r\n| project name, timestamp, duration, appName, location, success\r\n| project name, success, location, duration, appName, timestamp\r\n| where duration > 0\r\n| summarize by name, success\r\n| order by success asc",
+        "size": 4,
+        "showAnalytics": true,
+        "title": "Traffic Light View",
+        "noDataMessage": "No Availability Tests returned for this time range and resource options",
+        "noDataMessageStyle": 4,
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "crossComponentResources": [
+          "{ApplicationInsights}"
+        ],
+        "visualization": "tiles",
+        "showExpandCollapseGrid": true,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Web Test",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Success Bins",
+              "formatter": 5,
+              "formatOptions": {
+                "aggregation": "Sum"
+              }
+            },
+            {
+              "columnMatch": "Fail Bins",
+              "formatter": 5,
+              "formatOptions": {
+                "aggregation": "Sum"
+              }
+            },
+            {
+              "columnMatch": "Total Bins",
+              "formatter": 22,
+              "formatOptions": {
+                "aggregation": "Sum",
+                "compositeBarSettings": {
+                  "labelText": "[\"Success Bins\"] of [\"Total Bins\"] available",
+                  "columnSettings": [
+                    {
+                      "columnName": "Success Bins",
+                      "color": "green"
+                    },
+                    {
+                      "columnName": "Fail Bins",
+                      "color": "redBright"
+                    }
+                  ]
+                },
+                "customColumnWidthSetting": "170px"
+              }
+            },
+            {
+              "columnMatch": "Avg Duration",
+              "formatter": 8,
+              "formatOptions": {
+                "min": 0,
+                "palette": "red",
+                "aggregation": "Average",
+                "customColumnWidthSetting": "120px"
+              },
+              "numberFormat": {
+                "unit": 23,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumFractionDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "Max Duration",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "yellow",
+                "aggregation": "Max",
+                "customColumnWidthSetting": "120px"
+              },
+              "numberFormat": {
+                "unit": 23,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumFractionDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "Test Success %",
+              "formatter": 8,
+              "formatOptions": {
+                "min": 0,
+                "max": 100,
+                "palette": "redGreen",
+                "customColumnWidthSetting": "130px"
+              },
+              "numberFormat": {
+                "unit": 1,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumFractionDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "Outage Count",
+              "formatter": 4,
+              "formatOptions": {
+                "min": 0,
+                "palette": "red",
+                "aggregation": "Sum",
+                "customColumnWidthSetting": "130px"
+              }
+            },
+            {
+              "columnMatch": "Target 9s",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "1",
+                    "representation": "success",
+                    "text": "On Target"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "0",
+                    "representation": "2",
+                    "text": "Under Target"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ],
+                "aggregation": "Min"
+              }
+            },
+            {
+              "columnMatch": "5m Success Bins",
+              "formatter": 4,
+              "formatOptions": {
+                "min": 0,
+                "palette": "green",
+                "aggregation": "Sum",
+                "customColumnWidthSetting": "135px"
+              }
+            },
+            {
+              "columnMatch": "5m Fail Bins",
+              "formatter": 4,
+              "formatOptions": {
+                "min": 0,
+                "palette": "redBright",
+                "aggregation": "Sum",
+                "customColumnWidthSetting": "115px"
+              }
+            },
+            {
+              "columnMatch": "Total 5m Bins",
+              "formatter": 22,
+              "formatOptions": {
+                "aggregation": "Sum",
+                "compositeBarSettings": {
+                  "labelText": "[\"{OutageWindow}m Success Bins\"] of [\"total\"] succeeded",
+                  "columnSettings": [
+                    {
+                      "columnName": "5m Success Bins",
+                      "color": "green"
+                    },
+                    {
+                      "columnName": "5m Fail Bins",
+                      "color": "redBright"
+                    }
+                  ]
+                },
+                "customColumnWidthSetting": "120px"
+              },
+              "tooltipFormat": {}
+            },
+            {
+              "columnMatch": "total",
+              "formatter": 5,
+              "formatOptions": {
+                "aggregation": "Sum"
+              }
+            },
+            {
+              "columnMatch": "Success Count",
+              "formatter": 4,
+              "formatOptions": {
+                "palette": "green",
+                "aggregation": "Sum",
+                "customColumnWidthSetting": "160px"
+              }
+            },
+            {
+              "columnMatch": "Fail Count",
+              "formatter": 4,
+              "formatOptions": {
+                "palette": "redBright",
+                "aggregation": "Sum",
+                "customColumnWidthSetting": "140px"
+              }
+            },
+            {
+              "columnMatch": "Total 5m Windows",
+              "formatter": 22,
+              "formatOptions": {
+                "aggregation": "Sum",
+                "compositeBarSettings": {
+                  "labelText": "['{OutageWindow}m Success Count'] of [\"total\"] are healthy",
+                  "columnSettings": [
+                    {
+                      "columnName": "5m Success Count",
+                      "color": "green"
+                    },
+                    {
+                      "columnName": "5m Fail Count",
+                      "color": "redBright"
+                    }
+                  ]
+                },
+                "customColumnWidthSetting": "160px"
+              }
+            },
+            {
+              "columnMatch": "Total Tests",
+              "formatter": 22,
+              "formatOptions": {
+                "aggregation": "Sum",
+                "compositeBarSettings": {
+                  "labelText": "",
+                  "columnSettings": [
+                    {
+                      "columnName": "Success Count",
+                      "color": "green"
+                    },
+                    {
+                      "columnName": "Fail Count",
+                      "color": "redBright"
+                    }
+                  ]
+                },
+                "customColumnWidthSetting": "135px"
+              }
+            },
+            {
+              "columnMatch": "Availability",
+              "formatter": 13,
+              "formatOptions": {
+                "linkColumn": "appName",
+                "linkTarget": "OpenBlade",
+                "showIcon": true,
+                "bladeOpenContext": {
+                  "bladeParameters": []
+                }
+              }
+            },
+            {
+              "columnMatch": "Resource",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "Resource"
+              }
+            },
+            {
+              "columnMatch": "name1",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "appId",
+              "formatter": 13,
+              "formatOptions": {
+                "linkTarget": "Resource",
+                "showIcon": true
+              }
+            }
+          ]
+        },
+        "sortBy": [],
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "name",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "success",
+            "formatter": 18,
+            "formatOptions": {
+              "thresholdsOptions": "icons",
+              "thresholdsGrid": [
+                {
+                  "operator": "==",
+                  "thresholdValue": "1",
+                  "representation": "success",
+                  "text": ""
+                },
+                {
+                  "operator": "==",
+                  "thresholdValue": "0",
+                  "representation": "4",
+                  "text": ""
+                },
+                {
+                  "operator": "Default",
+                  "thresholdValue": null,
+                  "representation": "unknown",
+                  "text": ""
+                }
+              ]
+            }
+          },
+          "showBorder": true
+        }
+      },
+      "customWidth": "100",
+      "name": "availability-traffic-light-view"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "availabilityResults\r\n| extend testType = customDimensions.TestType\r\n| project name, timestamp, duration, appName, location, success, testType\r\n| project name, success, location, duration, appName, timestamp, testType\r\n| where duration > 0\r\n| extend Outage = case(success contains '1', 0, 1)\r\n| summarize sum(Outage), avg(duration) by name, appName, bin(timestamp, 5m), tostring(testType)\r\n| summarize ['Success Bins'] = todouble(countif(sum_Outage < toint(1))), ['Fail Bins'] = todouble(countif(sum_Outage >= toint(1))), ['Total Bins'] = todouble(count()), ['Max Duration'] = max(avg_duration), ['Avg Duration'] = avg(avg_duration) by name, appName, tostring(testType)\r\n| extend ['Test Success %'] = (['Success Bins'] / ['Total Bins'])*100",
+        "size": 1,
+        "showAnalytics": true,
+        "title": "Availability Tests by Type",
+        "noDataMessage": "No Availability Tests returned for this time range and resource options",
+        "noDataMessageStyle": 4,
+        "timeContextFromParameter": "Timerange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "crossComponentResources": [
+          "{ApplicationInsights}"
+        ],
+        "visualization": "table",
+        "showExpandCollapseGrid": true,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "appName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "testType",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Success Bins",
+              "formatter": 5,
+              "formatOptions": {
+                "aggregation": "Sum"
+              }
+            },
+            {
+              "columnMatch": "Fail Bins",
+              "formatter": 5,
+              "formatOptions": {
+                "aggregation": "Sum"
+              }
+            },
+            {
+              "columnMatch": "Total Bins",
+              "formatter": 22,
+              "formatOptions": {
+                "aggregation": "Sum",
+                "compositeBarSettings": {
+                  "labelText": "[\"Success Bins\"] of [\"Total Bins\"] available",
+                  "columnSettings": [
+                    {
+                      "columnName": "Success Bins",
+                      "color": "green"
+                    },
+                    {
+                      "columnName": "Fail Bins",
+                      "color": "redBright"
+                    }
+                  ]
+                },
+                "customColumnWidthSetting": "170px"
+              }
+            },
+            {
+              "columnMatch": "Max Duration",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "yellow",
+                "aggregation": "Max",
+                "customColumnWidthSetting": "120px"
+              },
+              "numberFormat": {
+                "unit": 23,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumFractionDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "Avg Duration",
+              "formatter": 8,
+              "formatOptions": {
+                "min": 0,
+                "palette": "red",
+                "aggregation": "Average",
+                "customColumnWidthSetting": "120px"
+              },
+              "numberFormat": {
+                "unit": 23,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumFractionDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "Test Success %",
+              "formatter": 8,
+              "formatOptions": {
+                "min": 0,
+                "max": 100,
+                "palette": "redGreen",
+                "customColumnWidthSetting": "130px"
+              },
+              "numberFormat": {
+                "unit": 1,
+                "options": {
+                  "style": "decimal",
+                  "useGrouping": false,
+                  "maximumFractionDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "appId",
+              "formatter": 13,
+              "formatOptions": {
+                "linkTarget": "Resource",
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "Resource",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "Resource"
+              }
+            },
+            {
+              "columnMatch": "Web Test",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Outage Count",
+              "formatter": 4,
+              "formatOptions": {
+                "min": 0,
+                "palette": "red",
+                "aggregation": "Sum",
+                "customColumnWidthSetting": "130px"
+              }
+            },
+            {
+              "columnMatch": "Target 9s",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "1",
+                    "representation": "success",
+                    "text": "On Target"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "0",
+                    "representation": "2",
+                    "text": "Under Target"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ],
+                "aggregation": "Min"
+              }
+            },
+            {
+              "columnMatch": "5m Success Bins",
+              "formatter": 4,
+              "formatOptions": {
+                "min": 0,
+                "palette": "green",
+                "aggregation": "Sum",
+                "customColumnWidthSetting": "135px"
+              }
+            },
+            {
+              "columnMatch": "5m Fail Bins",
+              "formatter": 4,
+              "formatOptions": {
+                "min": 0,
+                "palette": "redBright",
+                "aggregation": "Sum",
+                "customColumnWidthSetting": "115px"
+              }
+            },
+            {
+              "columnMatch": "Total 5m Bins",
+              "formatter": 22,
+              "formatOptions": {
+                "aggregation": "Sum",
+                "compositeBarSettings": {
+                  "labelText": "[\"{OutageWindow}m Success Bins\"] of [\"total\"] succeeded",
+                  "columnSettings": [
+                    {
+                      "columnName": "5m Success Bins",
+                      "color": "green"
+                    },
+                    {
+                      "columnName": "5m Fail Bins",
+                      "color": "redBright"
+                    }
+                  ]
+                },
+                "customColumnWidthSetting": "120px"
+              },
+              "tooltipFormat": {}
+            },
+            {
+              "columnMatch": "total",
+              "formatter": 5,
+              "formatOptions": {
+                "aggregation": "Sum"
+              }
+            },
+            {
+              "columnMatch": "Success Count",
+              "formatter": 4,
+              "formatOptions": {
+                "palette": "green",
+                "aggregation": "Sum",
+                "customColumnWidthSetting": "160px"
+              }
+            },
+            {
+              "columnMatch": "Fail Count",
+              "formatter": 4,
+              "formatOptions": {
+                "palette": "redBright",
+                "aggregation": "Sum",
+                "customColumnWidthSetting": "140px"
+              }
+            },
+            {
+              "columnMatch": "Total 5m Windows",
+              "formatter": 22,
+              "formatOptions": {
+                "aggregation": "Sum",
+                "compositeBarSettings": {
+                  "labelText": "['{OutageWindow}m Success Count'] of [\"total\"] are healthy",
+                  "columnSettings": [
+                    {
+                      "columnName": "5m Success Count",
+                      "color": "green"
+                    },
+                    {
+                      "columnName": "5m Fail Count",
+                      "color": "redBright"
+                    }
+                  ]
+                },
+                "customColumnWidthSetting": "160px"
+              }
+            },
+            {
+              "columnMatch": "Total Tests",
+              "formatter": 22,
+              "formatOptions": {
+                "aggregation": "Sum",
+                "compositeBarSettings": {
+                  "labelText": "",
+                  "columnSettings": [
+                    {
+                      "columnName": "Success Count",
+                      "color": "green"
+                    },
+                    {
+                      "columnName": "Fail Count",
+                      "color": "redBright"
+                    }
+                  ]
+                },
+                "customColumnWidthSetting": "135px"
+              }
+            },
+            {
+              "columnMatch": "Availability",
+              "formatter": 13,
+              "formatOptions": {
+                "linkColumn": "appName",
+                "linkTarget": "OpenBlade",
+                "showIcon": true,
+                "bladeOpenContext": {
+                  "bladeParameters": []
+                }
+              }
+            },
+            {
+              "columnMatch": "name1",
+              "formatter": 5
+            }
+          ],
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "testType"
+            ]
+          }
+        },
+        "sortBy": []
+      },
+      "customWidth": "100",
+      "name": "Overview Table"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "8feb241e-9903-4b9c-86fa-e8d65f6a921f",
+            "version": "KqlParameterItem/1.0",
+            "name": "Troubleshoot",
+            "type": 10,
+            "isRequired": true,
+            "query": "{\"version\":\"1.0.0\",\"content\":\"[\\r\\n    { \\\"value\\\":\\\"detailed\\\", \\\"label\\\":\\\"Detailed View\\\", \\\"selected\\\": true },\\r\\n    { \\\"value\\\":\\\"rawLogs\\\", \\\"label\\\":\\\"Raw Logs\\\" }\\r\\n]\",\"transformers\":null}",
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 8
+          }
+        ],
+        "style": "above",
+        "queryType": 8
+      },
+      "name": "parameters - 6"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "availabilityResults\r\n| summarize by Timestamp = timestamp, Name = name, Result = message, TestResponse = tostring(customDimensions.TestResponse),  TestTarget = tostring(customDimensions.TestTarget),  TestType = tostring(customDimensions.TestType),  TestExecutionError = tostring(customDimensions.TestExecutionError)\r\n| order by Timestamp desc",
+        "size": 0,
+        "title": "Test Details & Outcomes",
+        "timeContextFromParameter": "Timerange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "crossComponentResources": [
+          "{ApplicationInsights}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Message",
+              "formatter": 0,
+              "formatOptions": {
+                "customColumnWidthSetting": "70%"
+              }
+            }
+          ],
+          "rowLimit": 1000
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "Troubleshoot",
+        "comparison": "isEqualTo",
+        "value": "detailed"
+      },
+      "name": "custom-metadata"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "traces\r\n| project timestamp, message\r\n| where message startswith \"OUTPUT: \"\r\n| extend trimmed_message = trim(\"OUTPUT: \", message)\r\n| project Timestamp = timestamp, Message = trimmed_message\r\n| order by Timestamp desc",
+        "size": 0,
+        "title": "Raw Test Logs",
+        "timeContextFromParameter": "Timerange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "crossComponentResources": [
+          "{ApplicationInsights}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Message",
+              "formatter": 0,
+              "formatOptions": {
+                "customColumnWidthSetting": "70%"
+              }
+            }
+          ],
+          "rowLimit": 1000
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "Troubleshoot",
+        "comparison": "isEqualTo",
+        "value": "rawLogs"
+      },
+      "name": "raw-logs"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
